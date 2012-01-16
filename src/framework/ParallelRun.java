@@ -14,7 +14,7 @@ public abstract class ParallelRun {
 	 * Creating parallel browsers User perform() to start!
 	 * 
 	 * @param driverStr
-	 *            - what driver to use see getWebDriver in {@link StaticHelper}
+	 *            - what driver to use see getWebDriver in {@link StaticHelper#getWebDriver(String)}
 	 *            
 	 */
 	public ParallelRun(String driverStr) {
@@ -34,16 +34,16 @@ public abstract class ParallelRun {
 	 * Actions to perform on element in parallel
 	 * 
 	 * @param webElement
+	 * @param driver 
 	 * @return return true if result that you are locking fore have been found
 	 */
-	public abstract boolean runInParallel(WebElement webElement);
+	public abstract boolean runInParallel(WebElement webElement, WebDriver driver);
 
 	/**
 	 * Maim method Preparing data and starts parallel actions
 	 * @return true if at least one runInParallel have returned true.
 	 */
 	public boolean perform() {
-		new StaticHelper();
 		// Starting 2 browsers
 		WebDriver driver1 = StaticHelper.getWebDriver(driverStr);
 		WebDriver driver2 = StaticHelper.getWebDriver(driverStr);
@@ -53,8 +53,8 @@ public abstract class ParallelRun {
 		WebElement webElement2 = getWebElementForAction(driver2);
 
 		// Creating threads
-		Thread thread1 = new Thread(new ActionsInSameTime(webElement1));
-		Thread thread2 = new Thread(new ActionsInSameTime(webElement2));
+		Thread thread1 = new Thread(new ActionsInSameTime(webElement1, driver1));
+		Thread thread2 = new Thread(new ActionsInSameTime(webElement2, driver2));
 
 		// Performing fast actions
 		thread1.start();
@@ -70,13 +70,15 @@ public abstract class ParallelRun {
 	public class ActionsInSameTime implements Runnable {
 
 		private WebElement webElement;
+		private WebDriver driver;
 
-		public ActionsInSameTime(WebElement webElement) {
+		public ActionsInSameTime(WebElement webElement, WebDriver driver) {
 			this.webElement = webElement;
+			this.driver = driver;
 		}
 
 		public void run() {
-			if (runInParallel(webElement)) {
+			if (runInParallel(webElement, driver)) {
 				resulteGetted = true;
 			}
 		}
