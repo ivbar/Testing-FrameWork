@@ -7,46 +7,44 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.Alert;
-import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.Wait;
 import org.testng.Assert;
 
-/**
- * Class between selenium driver and page objects
- */
-@Deprecated
-public abstract class Framework {
-	// ------------------- Re implement !
-	/** Driver that do every thing */
-	public static WebDriver driver;
+public class PageObjectHelper {
+	protected WebDriver driver;
+	protected Random r = new Random();
 
-	/** Wait element */
-	public static Wait<WebDriver> wait;
-
-	// ------------------- If needed re implement !
+	// -------------------
 	/** Time to wait */
-	public static int WaitTime = 30;
+	protected int waitTime = 30;
+
+	/** new line symbol */
+	protected final String NEW_LINE = System.getProperty("line.separator");
 
 	/** Path where all stored */
-	public static String PathToFolder = "c:\\tmp\\";
+	protected String pathToFolder = "c:\\tmp\\";
 
 	/** ThrowExeptions on fail and stop tests */
-	public static boolean throwExeptions = true;
+	protected boolean throwExeptions = true;
 
-	// ------------------------------------
-	public static Random r = new Random();
-	protected static final String NEW_LINE = System
-			.getProperty("line.separator");
+	/**
+	 * Default constructor
+	 * 
+	 * @param webDriver
+	 */
+	public PageObjectHelper(WebDriver webDriver) {
+		this.driver = webDriver;
+	}
 
-	// -- assets --
+	// ------------------------- assets
 	/**
 	 * Compare equals if not equals - test fail
 	 * 
@@ -55,7 +53,7 @@ public abstract class Framework {
 	 * @param expected
 	 *            Object - what we expect
 	 */
-	protected static void assertEquals(Object actual, Object expected) {
+	protected void assertEquals(Object actual, Object expected) {
 		// Our own assert
 		if (!actual.equals(expected))
 			errorHeppens("Wrong assertEquals");
@@ -63,19 +61,35 @@ public abstract class Framework {
 	}
 
 	/**
+	 * Checking if condition is true
+	 * 
 	 * @param condition
 	 *            Boolean if false than test fails
 	 */
-	protected static void assertTrue(Boolean condition) {
+	protected void assertTrue(Boolean condition) {
 		if (!condition)
 			errorHeppens("Wrong assertTrue");
 		Assert.assertTrue(condition);
 	}
 
+	// ------------------------- getting system properties
+	/**
+	 * Getting current time
+	 * 
+	 * @param dateFormat
+	 * @return
+	 */
+	protected String now(String dateFormat) {
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+		return sdf.format(cal.getTime());
+	}
+
+	// ------------------------- errors
 	/**
 	 * What actions to perform what get error
 	 */
-	protected static void errorHeppens(String errorMessage) {
+	protected void errorHeppens(String errorMessage) {
 		customErrorHandler(errorMessage);
 
 		if (throwExeptions) {
@@ -88,7 +102,7 @@ public abstract class Framework {
 	 * 
 	 * @param errorMessage
 	 */
-	public static void customErrorHandler(String errorMessage) {
+	protected void customErrorHandler(String errorMessage) {
 		String prefix = now("yyyyMMddhhmmss");
 
 		// Printing to console
@@ -100,52 +114,49 @@ public abstract class Framework {
 				+ NEW_LINE + driver.getTitle() + NEW_LINE, prefix);
 	}
 
-	// ------------------------- general methods
-	/**
-	 * Getting current time
-	 * 
-	 * @param dateFormat
-	 * @return
-	 */
-	protected static String now(String dateFormat) {
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-		return sdf.format(cal.getTime());
-	}
-
 	/**
 	 * Printing error message
 	 * 
 	 * @param errorMes
 	 *            - what to print
 	 */
-	protected static void errorPrint(String errorMes) {
+	protected void errorPrint(String errorMes) {
 		lnprint(errorMes);
 	}
 
+	// ------------------------- files
 	/**
 	 * Tacking screen shot
 	 * 
 	 * @return true if a passed good
 	 */
-	protected static boolean tackeScreenShot(String filePrefix) {
-//		File scrFile = ((TakesScreenshot) driver)
-//				.getScreenshotAs(OutputType.FILE);
-//		String fileName = PathToFolder + filePrefix + ".png";
-//		try {
-			//TODO: add import
-//			FileUtils.copyFile(scrFile, new File(fileName));
-//		} catch (IOException e) {
-//			errorPrint("Screen shot fail");
-//			return false;
-//		}
+	protected boolean tackeScreenShot(String filePrefix) {
+		File scrFile = ((TakesScreenshot) driver)
+				.getScreenshotAs(OutputType.FILE);
+		String fileName = pathToFolder + filePrefix + ".png";
+		try {
+			// TODO: add import
+			FileUtils.copyFile(scrFile, new File(fileName));
+		} catch (IOException e) {
+			errorPrint("Screen shot fail");
+			return false;
+		}
 		return true;
 	}
 
-	protected static boolean createAndWriteTextFile(String text, String fileName) {
+	/**
+	 * Create text file in default folder with text
+	 * 
+	 * @param text
+	 *            - what to write to text file
+	 * @param fileName
+	 *            - name
+	 * @return true if all fine
+	 */
+	protected boolean createAndWriteTextFile(String text, String fileName) {
 		try {
 			Writer output = null;
-			File file = new File(PathToFolder + fileName + ".txt");
+			File file = new File(pathToFolder + fileName + ".txt");
 			output = new BufferedWriter(new FileWriter(file));
 			output.write(text);
 			output.close();
@@ -156,6 +167,16 @@ public abstract class Framework {
 		return true;
 	}
 
+	// ------------------------- general methods
+	/**
+	 * Opens url
+	 * 
+	 * @param url
+	 */
+	protected void open(String url) {
+		this.driver.get(url);
+	}
+
 	/**
 	 * Search for text on page
 	 * 
@@ -163,7 +184,7 @@ public abstract class Framework {
 	 *            - text to search
 	 * @return true if we have such text
 	 */
-	protected static boolean isTextOnPage(String text) {
+	protected boolean isTextOnPage(String text) {
 		if (driver.getPageSource().contains(text))
 			return true;
 		return false;
@@ -178,22 +199,22 @@ public abstract class Framework {
 	 *            - in what element we are locking in
 	 * @return true if we have such text
 	 */
-	protected static boolean isTextInElement(String text, By element) {
-		if (driver.findElement(element).getText().contains(text))
+	protected boolean isTextInElement(String text, WebElement element) {
+		if (element.getText().contains(text))
 			return true;
 		return false;
 	}
 
-	// click open
+	// ------------------------- click open
 	/**
 	 * Perform click on element
 	 * 
 	 * @param by
 	 *            - selector of element
 	 */
-	protected static void click(By by) {
+	protected void click(WebElement element) {
 		try {
-			driver.findElement(by).click();
+			element.click();
 		} catch (NoSuchElementException e) {
 			errorHeppens(e.getMessage());
 		}
@@ -205,9 +226,9 @@ public abstract class Framework {
 	 * @param by
 	 *            - selector of element
 	 */
-	protected static boolean clickIfPresent(By by) {
-		if (isElementPresent(by)) { // Is present
-			click(by); // Than click
+	protected boolean clickIfPresent(WebElement element) {
+		if (isElementPresent(element)) { // Is present
+			click(element); // Than click
 			return true;
 		}
 		return false;
@@ -219,9 +240,9 @@ public abstract class Framework {
 	 * @param by
 	 *            - selector of element
 	 */
-	protected static void waitAndClick(By by) {
-		waitForVisible(by);
-		click(by);
+	protected void waitAndClick(WebElement element) {
+		waitForVisible(element);
+		click(element);
 	}
 
 	/**
@@ -232,17 +253,16 @@ public abstract class Framework {
 	 * @param elementNumber
 	 *            - on which element we are clicking on. Start from 1.
 	 */
-	protected static void clickOnOneElementInGroup(By pathToElements,
-			int elementNumber) {
-		try {
-			WebElement element = driver.findElements(pathToElements).get(
-					elementNumber - 1);
-			element.click();
-		} catch (IndexOutOfBoundsException e) {
-
-		}
-
-	}
+	// protected static void clickOnOneElementInGroup(By pathToElements,
+	// int elementNumber) {
+	// try {
+	// WebElement element = driver.findElements(pathToElements).get(
+	// elementNumber - 1);
+	// element.click();
+	// } catch (IndexOutOfBoundsException e) {
+	//
+	// }
+	// }
 
 	/**
 	 * If we have a group of elements on selector we cat click on direct number
@@ -250,32 +270,32 @@ public abstract class Framework {
 	 * @param pathToElements
 	 *            - selector to group of elements
 	 */
-	protected static void clickOnOneAnyElementInGroup(By pathToElements) {
-		int size = driver.findElements(pathToElements).size();
-		if (size == 0) {
-			errorHeppens("clickOnOneAnyElementInGroup size == 0");
-		} else {
-			WebElement element = driver.findElements(pathToElements).get(
-					r.nextInt(size));
-			element.click();
-		}
-	}
+	// protected static void clickOnOneAnyElementInGroup(By pathToElements) {
+	// int size = driver.findElements(pathToElements).size();
+	// if (size == 0) {
+	// errorHeppens("clickOnOneAnyElementInGroup size == 0");
+	// } else {
+	// WebElement element = driver.findElements(pathToElements).get(
+	// r.nextInt(size));
+	// element.click();
+	// }
+	// }
 
-	// Title
+	// -------------------- Title
 	/**
 	 * Check if there is such text in title with Assert
 	 * 
 	 * @param textInTitle
 	 *            - string in title
 	 */
-	protected static void isTitleContainsAssert(String textInTitle) {
-		// Waiting for page
-		if (!driver.getTitle().contains(textInTitle))
-			wait(2000);
-
-		// Is title contains
-		assertTrue(driver.getTitle().contains(textInTitle));
-	}
+	// protected void isTitleContainsAssert(String textInTitle) {
+	// // Waiting for page
+	// if (!driver.getTitle().contains(textInTitle))
+	// wait(2000);
+	//
+	// // Is title contains
+	// assertTrue(driver.getTitle().contains(textInTitle));
+	// }
 
 	/**
 	 * Check if there is such text in title
@@ -284,7 +304,7 @@ public abstract class Framework {
 	 *            - string in title
 	 * @return true if such text is it title
 	 */
-	protected static boolean isTitleContains(String textInTitle) {
+	protected boolean isTitleContains(String textInTitle) {
 		if (driver.getTitle().contains(textInTitle))
 			return true;
 		return false;
@@ -296,9 +316,9 @@ public abstract class Framework {
 	 * @param title
 	 *            - page title
 	 */
-	protected static void isTitleAssert(String title) {
-		assertEquals(driver.getTitle(), title);
-	}
+	// protected void isTitleAssert(String title) {
+	// assertEquals(driver.getTitle(), title);
+	// }
 
 	/**
 	 * Checking page title
@@ -307,12 +327,11 @@ public abstract class Framework {
 	 *            - page title
 	 * @return boolean - true if page have same title
 	 */
-	protected static boolean isTitle(String title) {
-		if (driver.getTitle().equals(title))
-			return true;
-		return false;
-
-	}
+	// protected static boolean isTitle(String title) {
+	// if (driver.getTitle().equals(title))
+	// return true;
+	// return false;
+	// }
 
 	// Forms
 	/**
@@ -323,8 +342,8 @@ public abstract class Framework {
 	 * @param value
 	 *            - what to fill
 	 */
-	protected static void fill(By by, String value) {
-		driver.findElement(by).sendKeys(value);
+	protected void fill(WebElement element, String value) {
+		element.sendKeys(value);
 	}
 
 	/**
@@ -335,9 +354,9 @@ public abstract class Framework {
 	 * @param value
 	 *            - what to fill
 	 */
-	protected static void clearAndFill(By by, String value) {
-		driver.findElement(by).clear();
-		fill(by, value);
+	protected void clearAndFill(WebElement element, String value) {
+		element.clear();
+		fill(element, value);
 	}
 
 	/**
@@ -346,8 +365,8 @@ public abstract class Framework {
 	 * @param by
 	 *            - what element
 	 */
-	protected static void submitForm(By by) {
-		driver.findElement(by).submit();
+	protected void submitForm(WebElement element) {
+		element.submit();
 	}
 
 	/**
@@ -358,18 +377,18 @@ public abstract class Framework {
 	 * @param value
 	 *            - with what fill, if "" than random 6 numbers
 	 */
-	protected static void fillAll(By byGroup, String value) {
-		List<WebElement> elements = driver.findElements(byGroup);
-		for (WebElement element : elements) {
-			if (value.equals("")) {
-				element.sendKeys(Generator.numbers(6));
-			} else {
-				element.sendKeys(value);
-			}
-		}
-	}
+	// protected static void fillAll(By byGroup, String value) {
+	// List<WebElement> elements = driver.findElements(byGroup);
+	// for (WebElement element : elements) {
+	// if (value.equals("")) {
+	// element.sendKeys(Generator.numbers(6));
+	// } else {
+	// element.sendKeys(value);
+	// }
+	// }
+	// }
 
-	// Waiting
+	// -------------------------- Waiting
 	/**
 	 * waits for a minute till page with required title appear
 	 * 
@@ -377,8 +396,8 @@ public abstract class Framework {
 	 *            - what page to wait
 	 * @return boolean - true when we get page, false if such page was not found
 	 */
-	protected static boolean waitForPage(String pageTitle) {
-		for (int secondNow = 0; secondNow < WaitTime; secondNow++) {
+	protected boolean waitForPage(String pageTitle) {
+		for (int secondNow = 0; secondNow < waitTime; secondNow++) {
 			try {
 				if (driver.getTitle().contains(pageTitle))
 					return true;
@@ -395,13 +414,13 @@ public abstract class Framework {
 	 * @param by
 	 *            - element locator Exception if after time put no element found
 	 */
-	protected static void waitForElement(final By by) {
-		wait.until(new ExpectedCondition<Boolean>() {
-			public Boolean apply(WebDriver webDriver) {
-				return webDriver.findElement(by) != null;
-			}
-		});
-	}
+	// protected static void waitForElement(final WebElement element) {
+	// wait.until(new ExpectedCondition<Boolean>() {
+	// public Boolean apply(WebDriver webDriver) {
+	// return webDriver.findElement(by) != null;
+	// }
+	// });
+	// }
 
 	/**
 	 * Waits for text to be present
@@ -409,14 +428,14 @@ public abstract class Framework {
 	 * @param by
 	 *            - element locator Exception if after time put no element found
 	 */
-	protected static boolean waitForTextOnPage(final String text) {
+	protected boolean waitForTextOnPage(final String text) {
 		// wait.until(new ExpectedCondition<Boolean>() {
 		// public Boolean apply(WebDriver webDriver) {
 		// return isTextOnPage(text);
 		// }
 		// });
 
-		for (int secondNow = 0; secondNow < WaitTime; secondNow++) {
+		for (int secondNow = 0; secondNow < waitTime; secondNow++) {
 			try {
 				if (isTextOnPage(text))
 					return true;
@@ -434,15 +453,9 @@ public abstract class Framework {
 	 *            - element
 	 * @return true - if element was finally found, false - if no element found
 	 */
-	protected static boolean waitForVisible(By by) {
-		for (int secondNow = 0; secondNow < WaitTime; secondNow++) {
-			// Browsers which render content (such as Firefox and IE) return
-			// "RenderedWebElements"
-			WebElement resultsDiv = driver.findElement(by);
-
-			// If results have been returned, the results are displayed in a
-			// drop down.
-			if (resultsDiv.isDisplayed()) {
+	protected boolean waitForVisible(WebElement element) {
+		for (int secondNow = 0; secondNow < waitTime; secondNow++) {
+			if (element.isDisplayed()) {
 				return true;
 			}
 			wait(1000);
@@ -457,15 +470,9 @@ public abstract class Framework {
 	 *            - element
 	 * @return true - if element was finally found, false - if no element found
 	 */
-	protected static boolean waitForNotVisible(By by) {
-		for (int secondNow = 0; secondNow < WaitTime; secondNow++) {
-			// Browsers which render content (such as Firefox and IE) return
-			// "RenderedWebElements"
-			WebElement resultsDiv = driver.findElement(by);
-
-			// If results have been returned, the results are displayed in a
-			// drop down.
-			if (!resultsDiv.isDisplayed())
+	protected boolean waitForNotVisible(WebElement element) {
+		for (int secondNow = 0; secondNow < waitTime; secondNow++) {
+			if (!element.isDisplayed())
 				return true;
 			wait(1000);
 		}
@@ -478,7 +485,7 @@ public abstract class Framework {
 	 * @param timeToWait
 	 *            - what time to wait in Seconds (sec)
 	 */
-	protected static void wait(int timeToWait) {// TODO:Do not working for
+	protected void wait(int timeToWait) {// TODO:Do not working for
 												// HtmlUnit
 		long end = System.currentTimeMillis() + timeToWait * 1000;
 		while (System.currentTimeMillis() < end) {
@@ -494,19 +501,19 @@ public abstract class Framework {
 	 *            - Seconds to wait
 	 * @return true if element become present in time
 	 */
-	protected static boolean isElementPresentWait(By by, int timeToWait) {
-		if (timeToWait == 0)
-			timeToWait = WaitTime;
+	// protected static boolean isElementPresentWait(By by, int timeToWait) {
+	// if (timeToWait == 0)
+	// timeToWait = waitTime;
+	//
+	// for (int secondNow = 0; secondNow < timeToWait; secondNow++) {
+	// if (isElementPresent(by))
+	// return true;
+	// wait(1000);
+	// }
+	// return false;
+	// }
 
-		for (int secondNow = 0; secondNow < timeToWait; secondNow++) {
-			if (isElementPresent(by))
-				return true;
-			wait(1000);
-		}
-		return false;
-	}
-
-	// Getting element info
+	// --------------- Getting element info
 	/**
 	 * Getting text of the element
 	 * 
@@ -514,10 +521,9 @@ public abstract class Framework {
 	 *            - what element
 	 * @return text of element
 	 */
-	protected static String getText(By by) {
+	protected String getText(WebElement element) {
 		String text = "";
 		try {
-			WebElement element = driver.findElement(by);
 			text = element.getText();
 			if (text.isEmpty())
 				text = element.getAttribute("value"); // For input fields
@@ -534,12 +540,12 @@ public abstract class Framework {
 	 *            - what element
 	 * @return double
 	 */
-	protected static double getDouble(By by) {
-		String workStr = driver.findElement(by).getText();
-		if (workStr.charAt(0) == '$')
-			workStr = workStr.substring(1);
-		return Double.parseDouble(workStr);
-	}
+//	protected static double getDouble(By by) {
+//		String workStr = driver.findElement(by).getText();
+//		if (workStr.charAt(0) == '$')
+//			workStr = workStr.substring(1);
+//		return Double.parseDouble(workStr);
+//	}
 
 	/**
 	 * If we can locate element on screen
@@ -548,38 +554,36 @@ public abstract class Framework {
 	 *            - what element
 	 * @return true - there is such element, false - no element
 	 */
-	protected static boolean isElementPresent(By by) {
-		WebElement element = null;
-		try {
-			element = driver.findElement(by);
-		} catch (Exception e) {
-			return false;
-		}
-
-		boolean isPlesent = false;
-		if (element != null)
-			isPlesent = true;
-		return isPlesent;
+	protected boolean isElementPresent(WebElement element) {
+		// WebElement element = null;
+		// try {
+		// element = driver.findElement(by);
+		// } catch (Exception e) {
+		// return false;
+		// }
+		//
+		// boolean isPlesent = false;
+		// if (element != null)
+		// isPlesent = true;
+		return element != null;
 	}
 
 	// Alerts
 	/**
 	 * Accepting java script alert
 	 */
-	protected static void alertAccept() {
-		wait(500); // Waiting for message
+	protected void alertAccept() {
 		Alert alert = driver.switchTo().alert();
 		alert.accept();
 	}
 
-	// ----------------------------------------------------------
-
+	// ------------------------ Printing
 	/**
 	 * Show info in console
 	 * 
 	 * @param str
 	 */
-	protected static void print(String str) {
+	protected void print(String str) {
 		System.out.print(str);
 	}
 
@@ -589,7 +593,7 @@ public abstract class Framework {
 	 * @param str
 	 *            String
 	 */
-	protected static void println(String str) {
+	protected void println(String str) {
 		System.out.println(str);
 	}
 
@@ -599,9 +603,8 @@ public abstract class Framework {
 	 * @param str
 	 *            String
 	 */
-	protected static void lnprint(String str) {
+	protected void lnprint(String str) {
 		println("");
 		print(str);
 	}
-
 }
