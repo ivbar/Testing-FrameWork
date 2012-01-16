@@ -10,9 +10,12 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -129,16 +132,15 @@ public abstract class Framework {
 	 * @return true if a passed good
 	 */
 	protected static boolean tackeScreenShot(String filePrefix) {
-//		File scrFile = ((TakesScreenshot) driver)
-//				.getScreenshotAs(OutputType.FILE);
-//		String fileName = PathToFolder + filePrefix + ".png";
-//		try {
-			//TODO: add import
-//			FileUtils.copyFile(scrFile, new File(fileName));
-//		} catch (IOException e) {
-//			errorPrint("Screen shot fail");
-//			return false;
-//		}
+		File scrFile = ((TakesScreenshot) driver)
+				.getScreenshotAs(OutputType.FILE);
+		String fileName = PathToFolder + filePrefix + ".png";
+		try {
+			FileUtils.copyFile(scrFile, new File(fileName));
+		} catch (IOException e) {
+			errorPrint("Screen shot fail");
+			return false;
+		}
 		return true;
 	}
 
