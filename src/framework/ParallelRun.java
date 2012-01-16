@@ -1,7 +1,6 @@
 package framework;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 /**
  * Class for running actions in parallel in same time User perform() to start!
@@ -28,7 +27,7 @@ public abstract class ParallelRun {
 	 *            - getting element using this driver
 	 * @return WebElement
 	 */
-	public abstract WebElement getWebElementForAction(WebDriver driver);
+	public abstract PageObjectHelper getPageObjectbjectForAction(WebDriver driver);
 
 	/**
 	 * Actions to perform on element in parallel
@@ -37,7 +36,7 @@ public abstract class ParallelRun {
 	 * @param driver 
 	 * @return return true if result that you are locking fore have been found
 	 */
-	public abstract boolean runInParallel(WebElement webElement, WebDriver driver);
+	public abstract boolean runInParallel(PageObjectHelper pageObject);
 
 	/**
 	 * Maim method Preparing data and starts parallel actions
@@ -49,12 +48,12 @@ public abstract class ParallelRun {
 		WebDriver driver2 = StaticHelper.getWebDriver(driverStr);
 
 		// getting web elements
-		WebElement webElement1 = getWebElementForAction(driver1);
-		WebElement webElement2 = getWebElementForAction(driver2);
+		PageObjectHelper pageObject1 = getPageObjectbjectForAction(driver1);
+		PageObjectHelper pageObject2 = getPageObjectbjectForAction(driver2);
 
 		// Creating threads
-		Thread thread1 = new Thread(new ActionsInSameTime(webElement1, driver1));
-		Thread thread2 = new Thread(new ActionsInSameTime(webElement2, driver2));
+		Thread thread1 = new Thread(new ActionsInSameTime(pageObject1));
+		Thread thread2 = new Thread(new ActionsInSameTime(pageObject2));
 
 		// Performing fast actions
 		thread1.start();
@@ -69,16 +68,14 @@ public abstract class ParallelRun {
 	 */
 	public class ActionsInSameTime implements Runnable {
 
-		private WebElement webElement;
-		private WebDriver driver;
+		private PageObjectHelper pageObject;
 
-		public ActionsInSameTime(WebElement webElement, WebDriver driver) {
-			this.webElement = webElement;
-			this.driver = driver;
+		public ActionsInSameTime(PageObjectHelper pageObject) {
+			this.pageObject = pageObject;
 		}
 
 		public void run() {
-			if (runInParallel(webElement, driver)) {
+			if (runInParallel(this.pageObject)) {
 				resulteGetted = true;
 			}
 		}
