@@ -23,6 +23,9 @@ public class PageObjectHelper {
 	protected Random r = new Random();
 
 	// -------------------
+	/** write log info */
+	private static final boolean IS_WRITE_LOG_INFO = false;
+	
 	/** Time to wait */
 	protected int waitTime = 30;
 
@@ -246,58 +249,6 @@ public class PageObjectHelper {
 	}
 
 	/**
-	 * If we have a group of elements on selector we cat click on direct number
-	 * 
-	 * @param pathToElements
-	 *            - selector to group of elements
-	 * @param elementNumber
-	 *            - on which element we are clicking on. Start from 1.
-	 */
-	// protected static void clickOnOneElementInGroup(By pathToElements,
-	// int elementNumber) {
-	// try {
-	// WebElement element = driver.findElements(pathToElements).get(
-	// elementNumber - 1);
-	// element.click();
-	// } catch (IndexOutOfBoundsException e) {
-	//
-	// }
-	// }
-
-	/**
-	 * If we have a group of elements on selector we cat click on direct number
-	 * 
-	 * @param pathToElements
-	 *            - selector to group of elements
-	 */
-	// protected static void clickOnOneAnyElementInGroup(By pathToElements) {
-	// int size = driver.findElements(pathToElements).size();
-	// if (size == 0) {
-	// errorHeppens("clickOnOneAnyElementInGroup size == 0");
-	// } else {
-	// WebElement element = driver.findElements(pathToElements).get(
-	// r.nextInt(size));
-	// element.click();
-	// }
-	// }
-
-	// -------------------- Title
-	/**
-	 * Check if there is such text in title with Assert
-	 * 
-	 * @param textInTitle
-	 *            - string in title
-	 */
-	// protected void isTitleContainsAssert(String textInTitle) {
-	// // Waiting for page
-	// if (!driver.getTitle().contains(textInTitle))
-	// wait(2000);
-	//
-	// // Is title contains
-	// assertTrue(driver.getTitle().contains(textInTitle));
-	// }
-
-	/**
 	 * Check if there is such text in title
 	 * 
 	 * @param textInTitle
@@ -309,29 +260,6 @@ public class PageObjectHelper {
 			return true;
 		return false;
 	}
-
-	/**
-	 * Checking page title with Assert
-	 * 
-	 * @param title
-	 *            - page title
-	 */
-	// protected void isTitleAssert(String title) {
-	// assertEquals(driver.getTitle(), title);
-	// }
-
-	/**
-	 * Checking page title
-	 * 
-	 * @param title
-	 *            - page title
-	 * @return boolean - true if page have same title
-	 */
-	// protected static boolean isTitle(String title) {
-	// if (driver.getTitle().equals(title))
-	// return true;
-	// return false;
-	// }
 
 	// Forms
 	/**
@@ -369,25 +297,6 @@ public class PageObjectHelper {
 		element.submit();
 	}
 
-	/**
-	 * Fill all elements in group with value
-	 * 
-	 * @param byGroup
-	 *            - what to fill
-	 * @param value
-	 *            - with what fill, if "" than random 6 numbers
-	 */
-	// protected static void fillAll(By byGroup, String value) {
-	// List<WebElement> elements = driver.findElements(byGroup);
-	// for (WebElement element : elements) {
-	// if (value.equals("")) {
-	// element.sendKeys(Generator.numbers(6));
-	// } else {
-	// element.sendKeys(value);
-	// }
-	// }
-	// }
-
 	// -------------------------- Waiting
 	/**
 	 * waits for a minute till page with required title appear
@@ -403,24 +312,10 @@ public class PageObjectHelper {
 					return true;
 			} catch (Exception e) {
 			}
-			wait(1000);
+			wait(1);
 		}
 		return false;
 	}
-
-	/**
-	 * Waits for element to be present
-	 * 
-	 * @param by
-	 *            - element locator Exception if after time put no element found
-	 */
-	// protected static void waitForElement(final WebElement element) {
-	// wait.until(new ExpectedCondition<Boolean>() {
-	// public Boolean apply(WebDriver webDriver) {
-	// return webDriver.findElement(by) != null;
-	// }
-	// });
-	// }
 
 	/**
 	 * Waits for text to be present
@@ -429,23 +324,35 @@ public class PageObjectHelper {
 	 *            - element locator Exception if after time put no element found
 	 */
 	protected boolean waitForTextOnPage(final String text) {
-		// wait.until(new ExpectedCondition<Boolean>() {
-		// public Boolean apply(WebDriver webDriver) {
-		// return isTextOnPage(text);
-		// }
-		// });
-
 		for (int secondNow = 0; secondNow < waitTime; secondNow++) {
 			try {
 				if (isTextOnPage(text))
 					return true;
 			} catch (Exception e) {
 			}
-			wait(1000);
+			wait(1);
 		}
 		return false;
 	}
 
+	/**
+	 * Waiting for element present for some time
+	 * 
+	 * @param by
+	 *            - what element
+	 * @param timeToWait
+	 *            - Seconds to wait
+	 * @return true if element become present in time
+	 */
+	protected boolean waitForElement(WebElement element) {
+		for (int secondNow = 0; secondNow < waitTime; secondNow++) {
+			if (isElementPresent(element))
+				return true;
+			wait(1);
+		}
+		return false;
+	}
+	
 	/**
 	 * Waits for element to be shown
 	 * 
@@ -458,7 +365,7 @@ public class PageObjectHelper {
 			if (element.isDisplayed()) {
 				return true;
 			}
-			wait(1000);
+			wait(1);
 		}
 		return false;
 	}
@@ -474,7 +381,7 @@ public class PageObjectHelper {
 		for (int secondNow = 0; secondNow < waitTime; secondNow++) {
 			if (!element.isDisplayed())
 				return true;
-			wait(1000);
+			wait(1);
 		}
 		return false;
 	}
@@ -485,33 +392,11 @@ public class PageObjectHelper {
 	 * @param timeToWait
 	 *            - what time to wait in Seconds (sec)
 	 */
-	protected void wait(int timeToWait) {// TODO:Do not working for
-												// HtmlUnit
+	protected void wait(int timeToWait) {
 		long end = System.currentTimeMillis() + timeToWait * 1000;
 		while (System.currentTimeMillis() < end) {
 		}
 	}
-
-	/**
-	 * Waiting for element present for some time
-	 * 
-	 * @param by
-	 *            - what element
-	 * @param timeToWait
-	 *            - Seconds to wait
-	 * @return true if element become present in time
-	 */
-	// protected static boolean isElementPresentWait(By by, int timeToWait) {
-	// if (timeToWait == 0)
-	// timeToWait = waitTime;
-	//
-	// for (int secondNow = 0; secondNow < timeToWait; secondNow++) {
-	// if (isElementPresent(by))
-	// return true;
-	// wait(1000);
-	// }
-	// return false;
-	// }
 
 	// --------------- Getting element info
 	/**
@@ -534,20 +419,6 @@ public class PageObjectHelper {
 	}
 
 	/**
-	 * Getting the double of element
-	 * 
-	 * @param by
-	 *            - what element
-	 * @return double
-	 */
-//	protected static double getDouble(By by) {
-//		String workStr = driver.findElement(by).getText();
-//		if (workStr.charAt(0) == '$')
-//			workStr = workStr.substring(1);
-//		return Double.parseDouble(workStr);
-//	}
-
-	/**
 	 * If we can locate element on screen
 	 * 
 	 * @param by
@@ -555,17 +426,18 @@ public class PageObjectHelper {
 	 * @return true - there is such element, false - no element
 	 */
 	protected boolean isElementPresent(WebElement element) {
-		// WebElement element = null;
-		// try {
-		// element = driver.findElement(by);
-		// } catch (Exception e) {
-		// return false;
-		// }
-		//
-		// boolean isPlesent = false;
-		// if (element != null)
-		// isPlesent = true;
-		return element != null;
+		try {
+			if (element != null && element.isDisplayed()) {
+				printlog("yes element");
+				return true;
+			} else {
+				printlog("no element");
+				return false;
+			}
+		} catch (NoSuchElementException e) {
+			printlog("no element");
+			return false;
+		}
 	}
 
 	// Alerts
@@ -606,5 +478,15 @@ public class PageObjectHelper {
 	protected void lnprint(String str) {
 		println("");
 		print(str);
+	}
+
+	/**
+	 * Writing to log if IS_WRITE_LOG_INFO 
+	 * @param string
+	 */
+	private void printlog(String string) {
+		if (IS_WRITE_LOG_INFO) {
+			println(string);
+		}
 	}
 }
