@@ -33,7 +33,7 @@ public class PageObjectHelper {
 	private static final boolean IS_WRITE_LOG_INFO = false;
 
 	/** Time to wait */
-	protected int waitTime = 30;
+	protected int waitTime = 10;
 
 	/** new line symbol */
 	protected final String NEW_LINE = System.getProperty("line.separator");
@@ -61,56 +61,89 @@ public class PageObjectHelper {
 	 *            Object - what to compare
 	 * @param expected
 	 *            Object - what we expect
+	 * @param errorMessage
+	 *            - message to add to log
 	 */
-	protected void assertEquals(Object actual, Object expected) {
+	protected void assertEquals(Object actual, Object expected,
+			String errorMessage) {
 		// Our own assert
 		if (!actual.equals(expected))
-			errorHeppens("Wrong assertEquals   actual: \"" + actual
-					+ "\" expected: " + expected);
+			errorHeppens(errorMessage + NEW_LINE
+					+ " Wrong assertEquals   actual: " + actual
+					+ " | expected: " + expected);
 		Assert.assertEquals(actual, expected);
+	}
+
+	/**
+	 * Compare equals if not equals - test fail
+	 * 
+	 * @param actual
+	 *            Object - what to compare
+	 * @param expected
+	 *            Object - what we expect
+	 */
+	protected void assertEquals(Object actual, Object expected) {
+		assertEquals(actual, expected, "");
 	}
 
 	/**
 	 * Checking if condition is true
 	 * 
 	 * @param condition
-	 *            Boolean if false than test fails
+	 *            - Boolean if false than test fails
+	 * @param errorMessage
+	 *            - message to add to log
+	 */
+	protected void assertTrue(Boolean condition, String errorMessage) {
+		if (!condition)
+			errorHeppens(errorMessage + NEW_LINE
+					+ "Wrong assertTrue   actual: " + condition
+					+ " | expected: true");
+		Assert.assertTrue(condition);
+	}
+
+	/**
+	 * Checking if condition is true
+	 * 
+	 * @param condition
+	 *            - Boolean if false than test fails
 	 */
 	protected void assertTrue(Boolean condition) {
-		if (!condition)
-			errorHeppens("Wrong assertTrue   actual: \"" + condition
-					+ "\" expected: true");
-		Assert.assertTrue(condition);
+		assertTrue(condition, "");
 	}
 
 	// ------------------------- Getting driver info
 
 	/**
 	 * Is currently using driver is FileFox
+	 * 
 	 * @return
 	 */
 	protected boolean isDriverFireFox() {
 		return driver instanceof FirefoxDriver;
 	}
-	
+
 	/**
 	 * Is currently using driver is Chrome
+	 * 
 	 * @return
 	 */
 	protected boolean isDriverChrome() {
 		return driver instanceof ChromeDriver;
 	}
-	
+
 	/**
 	 * Is currently using driver is Opera
+	 * 
 	 * @return
 	 */
 	protected boolean isDriverOpera() {
 		return driver instanceof OperaDriver;
 	}
-	
+
 	/**
 	 * Is currently using driver is InternetExplorer
+	 * 
 	 * @return
 	 */
 	protected boolean isDriverInternetExplorer() {
@@ -357,7 +390,7 @@ public class PageObjectHelper {
 		while (System.currentTimeMillis() < end) {
 		}
 	}
-	
+
 	/**
 	 * waits for a minute till page with required title appear
 	 * 
