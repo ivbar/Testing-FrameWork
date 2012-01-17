@@ -16,7 +16,13 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.testng.Assert;
+import org.testng.Reporter;
+
+import com.opera.core.systems.OperaDriver;
 
 public class PageObjectHelper {
 	protected WebDriver driver;
@@ -25,7 +31,7 @@ public class PageObjectHelper {
 	// -------------------
 	/** write log info */
 	private static final boolean IS_WRITE_LOG_INFO = false;
-	
+
 	/** Time to wait */
 	protected int waitTime = 30;
 
@@ -47,7 +53,7 @@ public class PageObjectHelper {
 		this.driver = webDriver;
 	}
 
-	// ------------------------- assets
+	// ------------------------- Assets
 	/**
 	 * Compare equals if not equals - test fail
 	 * 
@@ -59,7 +65,8 @@ public class PageObjectHelper {
 	protected void assertEquals(Object actual, Object expected) {
 		// Our own assert
 		if (!actual.equals(expected))
-			errorHeppens("Wrong assertEquals");
+			errorHeppens("Wrong assertEquals   actual: \"" + actual
+					+ "\" expected: " + expected);
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -71,11 +78,46 @@ public class PageObjectHelper {
 	 */
 	protected void assertTrue(Boolean condition) {
 		if (!condition)
-			errorHeppens("Wrong assertTrue");
+			errorHeppens("Wrong assertTrue   actual: \"" + condition
+					+ "\" expected: true");
 		Assert.assertTrue(condition);
 	}
 
-	// ------------------------- getting system properties
+	// ------------------------- Getting driver info
+
+	/**
+	 * Is currently using driver is FileFox
+	 * @return
+	 */
+	protected boolean isDriverFireFox() {
+		return driver instanceof FirefoxDriver;
+	}
+	
+	/**
+	 * Is currently using driver is Chrome
+	 * @return
+	 */
+	protected boolean isDriverChrome() {
+		return driver instanceof ChromeDriver;
+	}
+	
+	/**
+	 * Is currently using driver is Opera
+	 * @return
+	 */
+	protected boolean isDriverOpera() {
+		return driver instanceof OperaDriver;
+	}
+	
+	/**
+	 * Is currently using driver is InternetExplorer
+	 * @return
+	 */
+	protected boolean isDriverInternetExplorer() {
+		return driver instanceof InternetExplorerDriver;
+	}
+
+	// ------------------------- Getting system properties
 	/**
 	 * Getting current time
 	 * 
@@ -88,7 +130,7 @@ public class PageObjectHelper {
 		return sdf.format(cal.getTime());
 	}
 
-	// ------------------------- errors
+	// ------------------------- Errors
 	/**
 	 * What actions to perform what get error
 	 */
@@ -108,13 +150,20 @@ public class PageObjectHelper {
 	protected void customErrorHandler(String errorMessage) {
 		String prefix = now("yyyyMMddhhmmss");
 
+		// Screen shot
+		boolean isScreenTaken = tackeScreenShot(prefix);
+
+		// Printing to test NG report
+		Reporter.log(errorMessage + NEW_LINE + "screenShot " + isScreenTaken
+				+ " " + prefix);
+
 		// Printing to console
 		errorPrint(errorMessage + " " + prefix);
 
-		//
-		tackeScreenShot(prefix);
-		createAndWriteTextFile(errorMessage + NEW_LINE + driver.getCurrentUrl()
-				+ NEW_LINE + driver.getTitle() + NEW_LINE, prefix);
+		// Create text file
+		// createAndWriteTextFile(errorMessage + NEW_LINE +
+		// driver.getCurrentUrl()
+		// + NEW_LINE + driver.getTitle() + NEW_LINE, prefix);
 	}
 
 	/**
@@ -127,7 +176,7 @@ public class PageObjectHelper {
 		lnprint(errorMes);
 	}
 
-	// ------------------------- files
+	// ------------------------- Files
 	/**
 	 * Tacking screen shot
 	 * 
@@ -138,7 +187,6 @@ public class PageObjectHelper {
 				.getScreenshotAs(OutputType.FILE);
 		String fileName = pathToFolder + filePrefix + ".png";
 		try {
-			// TODO: add import
 			FileUtils.copyFile(scrFile, new File(fileName));
 		} catch (IOException e) {
 			errorPrint("Screen shot fail");
@@ -170,7 +218,7 @@ public class PageObjectHelper {
 		return true;
 	}
 
-	// ------------------------- general methods
+	// ------------------------- General methods
 	/**
 	 * Opens url
 	 * 
@@ -208,7 +256,7 @@ public class PageObjectHelper {
 		return false;
 	}
 
-	// ------------------------- click open
+	// ------------------------- Click open
 	/**
 	 * Perform click on element
 	 * 
@@ -244,7 +292,7 @@ public class PageObjectHelper {
 	 *            - selector of element
 	 */
 	protected void waitAndClick(WebElement element) {
-		waitForVisible(element);
+		waitForElement(element);
 		click(element);
 	}
 
@@ -261,7 +309,7 @@ public class PageObjectHelper {
 		return false;
 	}
 
-	// Forms
+	// ------------------------- Forms
 	/**
 	 * Filling value to element
 	 * 
@@ -298,6 +346,18 @@ public class PageObjectHelper {
 	}
 
 	// -------------------------- Waiting
+	/**
+	 * Do nothing for some time
+	 * 
+	 * @param secondsToWait
+	 *            - what time to wait in Seconds (sec)
+	 */
+	protected void wait(int secondsToWait) {
+		long end = System.currentTimeMillis() + secondsToWait * 1000;
+		while (System.currentTimeMillis() < end) {
+		}
+	}
+	
 	/**
 	 * waits for a minute till page with required title appear
 	 * 
@@ -336,6 +396,24 @@ public class PageObjectHelper {
 	}
 
 	/**
+	 * Waiting while text will disappear
+	 * 
+	 * @param text
+	 * @return
+	 */
+	protected boolean waitForNOtextOnPage(final String text) {
+		for (int secondNow = 0; secondNow < waitTime; secondNow++) {
+			try {
+				if (!isTextOnPage(text))
+					return true;
+			} catch (Exception e) {
+			}
+			wait(1);
+		}
+		return false;
+	}
+
+	/**
 	 * Waiting for element present for some time
 	 * 
 	 * @param by
@@ -352,7 +430,7 @@ public class PageObjectHelper {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Waits for element to be shown
 	 * 
@@ -386,19 +464,7 @@ public class PageObjectHelper {
 		return false;
 	}
 
-	/**
-	 * Do no thing for some time
-	 * 
-	 * @param timeToWait
-	 *            - what time to wait in Seconds (sec)
-	 */
-	protected void wait(int timeToWait) {
-		long end = System.currentTimeMillis() + timeToWait * 1000;
-		while (System.currentTimeMillis() < end) {
-		}
-	}
-
-	// --------------- Getting element info
+	// ------------------------- Getting element info
 	/**
 	 * Getting text of the element
 	 * 
@@ -440,7 +506,7 @@ public class PageObjectHelper {
 		}
 	}
 
-	// Alerts
+	// ------------------------- Alerts
 	/**
 	 * Accepting java script alert
 	 */
@@ -481,7 +547,8 @@ public class PageObjectHelper {
 	}
 
 	/**
-	 * Writing to log if IS_WRITE_LOG_INFO 
+	 * Writing to log if IS_WRITE_LOG_INFO
+	 * 
 	 * @param string
 	 */
 	private void printlog(String string) {
