@@ -1,4 +1,3 @@
-
 package framework;
 
 import java.util.List;
@@ -7,34 +6,144 @@ import java.util.Stack;
 import java.util.Vector;
 
 /**
- * Is used for generation valid credit cards for testing 
+ * Is used for generation valid credit cards for testing
  */
 public class Generator {
-	public static final String[] VISA_PREFIX_LIST = new String[] { "4539",
+	// -------------------- Generating --------------------------
+	/**
+	 * Generating random boolean value
+	 * 
+	 * @return - random boolean value
+	 */
+	public static boolean randomBoolean() {
+		Random random = new Random();
+		return random.nextBoolean();
+	}
+
+	/**
+	 * Generates needed quantity of symbols from numbers and chars.
+	 * 
+	 * @param numOfCars
+	 *            - how many symbols
+	 * @return String
+	 */
+	public static String charsAndNumbers(int numOfCars) {
+		return generateOnAlfabet(numOfCars,
+				"abcdefghijklmnopqrstuvwxyz0123456789");
+	}
+
+	/**
+	 * Generates needed quantity of symbols from chars.
+	 * 
+	 * @param numOfCars
+	 * @return String
+	 */
+	public static String chars(int numOfCars) {
+		return generateOnAlfabet(numOfCars, "abcdefghijklmnopqrstuvwxyz");
+	}
+
+	/**
+	 * Generates needed quantity of symbols from numbers.
+	 * 
+	 * @param numOfCars
+	 * @return String
+	 */
+	public static String numbers(int numOfCars) {
+		return generateOnAlfabet(numOfCars, "0123456789");
+	}
+
+	/**
+	 * Generates needed quantity of symbols with spaces
+	 * 
+	 * @param numOfCars
+	 * @return String
+	 */
+	public static String words(int numOfCars) {
+		return generateOnAlfabet(numOfCars, "abcdefghijklmnopqrstuvwxyz ");
+	}
+
+	/**
+	 * Generates valid email.
+	 * 
+	 * @return String
+	 */
+	public static String email() {
+		int numOfCars = 4;
+		return chars(numOfCars) + "@" + chars(numOfCars) + ".com";
+	}
+
+	/**
+	 * Generating symbols on prepared alphabet
+	 * 
+	 * @param numOfCars
+	 * @param alfabet
+	 * @return
+	 */
+	private static String generateOnAlfabet(int numOfCars, String alfabet) {
+		String text = "";
+		int length = alfabet.length();
+		if (numOfCars <= 0)
+			return "";
+		for (int i = 0; i < numOfCars; i++) {
+			text += alfabet.charAt((int) Math.floor(Math.random() * length));
+		}
+
+		return text;
+	}
+
+	// ----------------- Credit cards
+	/**
+	 * Generates valid master card number.
+	 * 
+	 * @return String
+	 */
+	public static String ccNum() {
+		return Generator.generateMasterCardNumber();
+	}
+
+	/**
+	 * Generates valid amex card number.
+	 * 
+	 * @return String
+	 */
+	public static String ccNumAmex() {
+		return Generator.generateAmexCardNumber();
+	}
+
+	// ----------------- Credit cards suppot methods
+
+	@SuppressWarnings("unused")
+	private static final String[] VISA_PREFIX_LIST = new String[] { "4539",
 			"4556", "4916", "4532", "4929", "40240071", "4485", "4716", "4" };
 
-	public static final String[] MASTERCARD_PREFIX_LIST = new String[] { "51",
+	private static final String[] MASTERCARD_PREFIX_LIST = new String[] { "51",
 			"52", "53", "54", "55" };
 
-	public static final String[] AMEX_PREFIX_LIST = new String[] { "34", "37" };
+	private static final String[] AMEX_PREFIX_LIST = new String[] { "34", "37" };
 
-	public static final String[] DISCOVER_PREFIX_LIST = new String[] { "6011" };
+	@SuppressWarnings("unused")
+	private static final String[] DISCOVER_PREFIX_LIST = new String[] { "6011" };
 
-	public static final String[] DINERS_PREFIX_LIST = new String[] { "300",
+	@SuppressWarnings("unused")
+	private static final String[] DINERS_PREFIX_LIST = new String[] { "300",
 			"301", "302", "303", "36", "38" };
 
-	public static final String[] ENROUTE_PREFIX_LIST = new String[] { "2014",
+	@SuppressWarnings("unused")
+	private static final String[] ENROUTE_PREFIX_LIST = new String[] { "2014",
 			"2149" };
 
-	public static final String[] JCB_16_PREFIX_LIST = new String[] { "3088",
+	@SuppressWarnings("unused")
+	private static final String[] JCB_16_PREFIX_LIST = new String[] { "3088",
 			"3096", "3112", "3158", "3337", "3528" };
 
-	public static final String[] JCB_15_PREFIX_LIST = new String[] { "2100",
+	@SuppressWarnings("unused")
+	private static final String[] JCB_15_PREFIX_LIST = new String[] { "2100",
 			"1800" };
 
-	public static final String[] VOYAGER_PREFIX_LIST = new String[] { "8699" };
+	@SuppressWarnings("unused")
+	private static final String[] VOYAGER_PREFIX_LIST = new String[] { "8699" };
 
-	static String strrev(String str) {
+	private static String strrev(String str) {
 		if (str == null)
 			return "";
 		String revstr = "";
@@ -49,7 +158,7 @@ public class Generator {
 	 * 'prefix' is the start of the CC number as a string, any number of digits.
 	 * 'length' is the length of the CC number to generate. Typically 13 or 16
 	 */
-	static String completed_number(String prefix, int length) {
+	private static String completed_number(String prefix, int length) {
 
 		String ccnumber = prefix;
 
@@ -101,7 +210,7 @@ public class Generator {
 
 	}
 
-	public static String[] credit_card_number(String[] prefixList, int length,
+	private static String[] credit_card_number(String[] prefixList, int length,
 			int howMany) {
 
 		Stack<String> result = new Stack<String>();
@@ -115,19 +224,21 @@ public class Generator {
 		return result.toArray(new String[result.size()]);
 	}
 
-	public static String[] generateMasterCardNumbers(int howMany) {
+	@SuppressWarnings("unused")
+	private static String[] generateMasterCardNumbers(int howMany) {
 		return credit_card_number(MASTERCARD_PREFIX_LIST, 16, howMany);
 	}
 
-	public static String generateAmexCardNumber() {
+	private static String generateAmexCardNumber() {
 		return credit_card_number(AMEX_PREFIX_LIST, 15, 1)[0];
 	}
-	
-	public static String generateMasterCardNumber() {
+
+	private static String generateMasterCardNumber() {
 		return credit_card_number(MASTERCARD_PREFIX_LIST, 16, 1)[0];
 	}
 
-	public static boolean isValidCreditCardNumber(String creditCardNumber) {
+	@SuppressWarnings("unused")
+	private static boolean isValidCreditCardNumber(String creditCardNumber) {
 		boolean isValid = false;
 
 		try {
@@ -158,85 +269,4 @@ public class Generator {
 		return isValid;
 	}
 
-	
-  //-------------------- Generating --------------------------
-	
-    /**
-     * Generating random boolean value
-     * @return - random boolean value
-     */
-    public static boolean randomBoolean() {
-		Random random = new Random();
-		return random.nextBoolean(); 
-	}
-    
-    /**
-     * Generates needed quantity of symbols from numbers and chars.
-     * @param numOfCars - how many symbols
-     * @return String
-     */
-    public static String charsAndNumbers (int numOfCars) {
-		String text = "";
-		String possible = "abcdefghijklmnopqrstuvwxyz0123456789";
-		if (numOfCars <= 0) numOfCars=6;
-		for( int i=0; i < numOfCars; i++ ) text += possible.charAt((int) Math.floor(Math.random() * possible.length()));
-		return text;	
-	}
-	
-	/**
-	 * Generates needed quantity of symbols from chars.
-	 * @param numOfCars
-	 * @return String
-	 */
-    public static String chars (int numOfCars) {
-		String text = "";
-		String possible = "abcdefghijklmnopqrstuvwxyz";
-		if (numOfCars <= 0) numOfCars=6;
-		for( int i=0; i < numOfCars; i++ ) text += possible.charAt((int) Math.floor(Math.random() *possible.length()));
-		return text;	
-	}
-	
-	/**
-	 * Generates needed quantity of symbols from numbers.
-	 * @param numOfCars
-	 * @return String
-	 */
-	public static String numbers (int numOfCars) {
-		String text = "";
-		String possible = "0123456789";
-		if (numOfCars <= 0) numOfCars=6;
-		for( int i=0; i < numOfCars; i++ ) text += possible.charAt((int) Math.floor(Math.random() * possible.length()));
-		return text;	
-	}
-	
-	/**
-	 * Generates valid master card number.
-	 * @return String
-	 */
-	public static String ccNum () {
-		return Generator.generateMasterCardNumber();	
-	}
-	
-	/**
-	 * Generates valid amex card number.
-	 * @return String
-	 */
-	public static String ccNumAmex () {
-		return Generator.generateAmexCardNumber();	
-	}
-	
-	/**
-	 * Generates valid email.
-	 * @return String
-	 */
-	public static String email () {
-		String text = "";
-		int numOfCars=4;
-		text+=chars(numOfCars);
-		text+="@";
-		text+=chars(numOfCars);
-		text+=".com";
-		return text;	
-	}
-	
 }
