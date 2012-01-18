@@ -19,6 +19,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
 import org.testng.Reporter;
 
@@ -99,7 +100,15 @@ public class PageObjectHelper {
 			errorHeppens(errorMessage + NEW_LINE
 					+ "Wrong assertTrue   actual: " + condition
 					+ " | expected: true");
-		Assert.assertTrue(condition);
+	}
+
+	/**
+	 * Test fail show error
+	 * 
+	 * @param errorMessage
+	 */
+	protected void assertShowError(String errorMessage) {
+		errorHeppens(errorMessage + NEW_LINE);
 	}
 
 	/**
@@ -113,7 +122,6 @@ public class PageObjectHelper {
 	}
 
 	// ------------------------- Getting driver info
-
 	/**
 	 * Is currently using driver is FileFox
 	 * 
@@ -378,6 +386,15 @@ public class PageObjectHelper {
 		element.submit();
 	}
 
+	/**
+	 * Selecting element in select by visible text
+	 * @param element - web element of select
+	 * @param visibleText - what text to select
+	 */
+	protected void selectByVisibleText(WebElement element, String visibleText) {
+		new Select(element).selectByVisibleText(visibleText);
+	}
+
 	// -------------------------- Waiting
 	/**
 	 * Do nothing for some time
@@ -465,24 +482,8 @@ public class PageObjectHelper {
 	}
 
 	/**
-	 * Waits for element to be shown
-	 * 
-	 * @param by
-	 *            - element
-	 * @return true - if element was finally found, false - if no element found
-	 */
-	protected boolean waitForVisible(WebElement element) {
-		for (int secondNow = 0; secondNow < waitTime; secondNow++) {
-			if (element.isDisplayed()) {
-				return true;
-			}
-			wait(1);
-		}
-		return false;
-	}
-
-	/**
-	 * Waits for element to be hidden
+	 * Waits for element to be hidden The element should be present but become
+	 * hidden
 	 * 
 	 * @param by
 	 *            - element

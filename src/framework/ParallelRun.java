@@ -59,6 +59,10 @@ public abstract class ParallelRun {
 		thread1.start();
 		thread2.start();
 
+		//Closing driver
+//		driver1.close();
+//		driver2.close();
+		
 		// Returning have we seen result or not
 		return resulteGetted;
 	}
