@@ -11,6 +11,7 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.Alert;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -357,6 +358,7 @@ public class PageObjectHelper {
 	 */
 	protected void fill(WebElement element, String value) {
 		try {
+			element.clear();
 			element.sendKeys(value);
 		} catch (NoSuchElementException e) {
 			waitForElement(element);
@@ -369,18 +371,7 @@ public class PageObjectHelper {
 		
 	}
 
-	/**
-	 * Clearing element value and Filling value to element
-	 * 
-	 * @param by
-	 *            - what element
-	 * @param value
-	 *            - what to fill
-	 */
-	protected void clearAndFill(WebElement element, String value) {
-		element.clear();
-		fill(element, value);
-	}
+	
 
 	/**
 	 * Submitting the form
@@ -552,8 +543,13 @@ public class PageObjectHelper {
 	 * Accepting java script alert
 	 */
 	protected void alertAccept() {
-		Alert alert = driver.switchTo().alert();
-		alert.accept();
+		try {
+			Alert alert = driver.switchTo().alert();
+			alert.accept();
+		} catch (NoAlertPresentException e) {
+			print("No alert present");
+		}
+		
 	}
 
 	// ------------------------ Printing
