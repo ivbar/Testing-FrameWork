@@ -40,7 +40,7 @@ public class PageObjectHelper {
 	protected final String NEW_LINE = System.getProperty("line.separator");
 
 	/** Path where all stored */
-	protected String pathToFolder = "c:\\tmp\\";
+	protected String pathToFolder = "c:\\report\\";
 
 	/** ThrowExeptions on fail and stop tests */
 	protected boolean throwExeptions = true;
@@ -300,6 +300,7 @@ public class PageObjectHelper {
 	// ------------------------- Click open
 	/**
 	 * Perform click on element
+	 * If no element found than wait and click
 	 * 
 	 * @param by
 	 *            - selector of element
@@ -308,7 +309,12 @@ public class PageObjectHelper {
 		try {
 			element.click();
 		} catch (NoSuchElementException e) {
-			errorHeppens(e.getMessage());
+			waitForElement(element);
+			try {
+				element.click();
+			} catch (Exception e2) {
+				errorHeppens(e.getMessage());
+			}
 		}
 	}
 
@@ -324,17 +330,6 @@ public class PageObjectHelper {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Waiting for element to become visible and click on it
-	 * 
-	 * @param by
-	 *            - selector of element
-	 */
-	protected void waitAndClick(WebElement element) {
-		waitForElement(element);
-		click(element);
 	}
 
 	/**
@@ -360,7 +355,17 @@ public class PageObjectHelper {
 	 *            - what to fill
 	 */
 	protected void fill(WebElement element, String value) {
-		element.sendKeys(value);
+		try {
+			element.sendKeys(value);
+		} catch (NoSuchElementException e) {
+			waitForElement(element);
+			try {
+				element.sendKeys(value);
+			} catch (Exception e2) {
+				errorHeppens(e.getMessage());
+			}
+		}
+		
 	}
 
 	/**

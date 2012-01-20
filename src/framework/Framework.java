@@ -23,7 +23,9 @@ import org.openqa.selenium.support.ui.Wait;
 import org.testng.Assert;
 
 /**
- * Class between selenium driver and page objects
+ * Old version
+ * Will remove in future
+ * Do NOT use it 
  */
 @Deprecated
 public abstract class Framework {
