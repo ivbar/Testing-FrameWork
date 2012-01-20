@@ -292,8 +292,9 @@ public class PageObjectHelper {
 	 * @return true if we have such text
 	 */
 	protected boolean isTextInElement(String text, WebElement element) {
-		if (element.getText().contains(text))
+		if (getText(element).contains(text)) {
 			return true;
+		}
 		return false;
 	}
 
@@ -512,6 +513,7 @@ public class PageObjectHelper {
 	 * @return text of element
 	 */
 	protected String getText(WebElement element) {
+		waitForElement(element);
 		String text = "";
 		try {
 			text = element.getText();
