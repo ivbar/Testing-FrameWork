@@ -1,5 +1,7 @@
 package framework;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -11,6 +13,7 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.Alert;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
@@ -350,28 +353,58 @@ public class PageObjectHelper {
 	// ------------------------- Forms
 	/**
 	 * Filling value to element
-	 * 
+	 * If value > 100 chars than copy past value
 	 * @param by
 	 *            - what element
 	 * @param value
 	 *            - what to fill
 	 */
-	protected void fill(WebElement element, String value) {
+	protected boolean fill(WebElement element, String value) {
 		try {
-			element.clear();
-			element.sendKeys(value);
+			fillPrivat(element, value);
+			return true;
 		} catch (NoSuchElementException e) {
 			waitForElement(element);
 			try {
-				element.sendKeys(value);
+				fillPrivat(element, value);
+				return true;
 			} catch (Exception e2) {
 				errorHeppens(e.getMessage());
 			}
 		}
+		return false;
 		
 	}
 
-	
+	/**
+	 * Private method for supporting fill
+	 * Performs fill with out checks
+	 * @param element
+	 * @param value
+	 */
+	private void fillPrivat(WebElement element, String value) {
+		//Clearing element
+		try {
+			element.clear();
+		} catch (Exception e) {
+			// TODO: show than element is not cleareable
+		}
+		
+		
+		if (value.length() < 100) {
+			
+			element.sendKeys(value);
+		} else {
+			//Fast fill
+			
+			//Saving to clipboard
+			StringSelection ss = new StringSelection(value);
+		    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
+			
+		    //Pasting value
+			element.sendKeys(Keys.CONTROL + "v");
+		}
+	}
 
 	/**
 	 * Submitting the form
