@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
@@ -31,7 +32,7 @@ import com.opera.core.systems.OperaDriver;
 
 public class PageObjectHelper {
 	protected WebDriver driver;
-	protected Random r = new Random();
+	private Random r = new Random();
 
 	// -------------------
 	/** write log info */
@@ -324,6 +325,25 @@ public class PageObjectHelper {
 	}
 
 	/**
+	 * Click on random element in list of elements
+	 * @param listOfElenentsToClick - list 
+	 */
+	protected void click(List<WebElement> listOfElenentsToClick) {
+		int size = listOfElenentsToClick.size();
+		if (size <= 0) { //TODO starting from 0?
+			for (int secondNow = 0; secondNow < waitTime; secondNow++) {
+				size = listOfElenentsToClick.size();
+				if (size > 0) break;
+				wait(1);
+			}
+			if (size <= 0) assertShowError("No elements were found");
+		}
+		
+		int index = r.nextInt(size);
+		click(listOfElenentsToClick.get(index));
+	}
+	
+	/**
 	 * Perform click on element if it is present
 	 * 
 	 * @param by
@@ -551,7 +571,7 @@ public class PageObjectHelper {
 
 	/**
 	 * If we can locate element on screen
-	 * 
+	 * Element should be present and displayed on screen
 	 * @param by
 	 *            - what element
 	 * @return true - there is such element, false - no element
