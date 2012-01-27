@@ -39,16 +39,16 @@ public class PageObjectHelper {
 	private static final boolean IS_WRITE_LOG_INFO = false;
 
 	/** Time to wait */
-	protected int waitTime = 10;
+	private int waitTime = 10;
 
 	/** new line symbol */
-	protected final String NEW_LINE = System.getProperty("line.separator");
+	private final String NEW_LINE = System.getProperty("line.separator");
 
 	/** Path where all stored */
-	protected String pathToFolder = "c:\\report\\";
+	private String pathToFolder = "c:\\report\\";
 
 	/** ThrowExeptions on fail and stop tests */
-	protected boolean throwExeptions = true;
+	private boolean throwExeptions = true;
 
 	/**
 	 * Default constructor
@@ -305,8 +305,7 @@ public class PageObjectHelper {
 
 	// ------------------------- Click open
 	/**
-	 * Perform click on element
-	 * If no element found than wait and click
+	 * Perform click on element If no element found than wait and click
 	 * 
 	 * @param by
 	 *            - selector of element
@@ -324,25 +323,6 @@ public class PageObjectHelper {
 		}
 	}
 
-	/**
-	 * Click on random element in list of elements
-	 * @param listOfElenentsToClick - list 
-	 */
-	protected void click(List<WebElement> listOfElenentsToClick) {
-		int size = listOfElenentsToClick.size();
-		if (size <= 0) { //TODO starting from 0?
-			for (int secondNow = 0; secondNow < waitTime; secondNow++) {
-				size = listOfElenentsToClick.size();
-				if (size > 0) break;
-				wait(1);
-			}
-			if (size <= 0) assertShowError("No elements were found");
-		}
-		
-		int index = r.nextInt(size);
-		click(listOfElenentsToClick.get(index));
-	}
-	
 	/**
 	 * Perform click on element if it is present
 	 * 
@@ -370,58 +350,114 @@ public class PageObjectHelper {
 		return false;
 	}
 
+	// ------------------------- Actions with lists
+	/**
+	 * Click on random element in list of elements
+	 * 
+	 * @param listOfElenentsToClick
+	 *            - list
+	 */
+	protected void click(List<WebElement> listOfElenentsToClick) {
+		int size = getListSizeOrWaitForIt(listOfElenentsToClick);
+
+		int index = r.nextInt(size);
+		click(listOfElenentsToClick.get(index));
+	}
+
+
+	/**
+	 * Click on element in list that contains text
+	 * 
+	 * @param listOfElenents
+	 *            - list
+	 * @param textToClick - text on which we are clicking on
+	 * @return true if element found 
+	 */
+	protected boolean clickOnContains(List<WebElement> listOfElenents, String textToClick) {
+		getListSizeOrWaitForIt(listOfElenents);
+
+		for (WebElement webElement : listOfElenents) {
+			if (getText(webElement).contains(textToClick)) {
+				click(webElement);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * @param listOfElenents
+	 * @return
+	 */
+	private int getListSizeOrWaitForIt(List<WebElement> listOfElenents) {
+		int size = listOfElenents.size();
+		if (size <= 0) { 
+			for (int secondNow = 0; secondNow < waitTime; secondNow++) {
+				size = listOfElenents.size();
+				if (size > 0)
+					break;
+				wait(1);
+			}
+			if (size <= 0)
+				assertShowError("No elements were found");
+		}
+		return size;
+	}
+	
 	// ------------------------- Forms
 	/**
-	 * Filling value to element
-	 * If value > 100 chars than copy past value
+	 * Filling value to element If value > 100 chars than copy past value
+	 * 
 	 * @param by
 	 *            - what element
 	 * @param value
 	 *            - what to fill
+	 * @return string that was typed in field or empty string if error
 	 */
-	protected boolean fill(WebElement element, String value) {
+	protected String fill(WebElement element, String value) {
 		try {
 			fillPrivat(element, value);
-			return true;
+			return value;
 		} catch (NoSuchElementException e) {
 			waitForElement(element);
 			try {
 				fillPrivat(element, value);
-				return true;
+				return value;
 			} catch (Exception e2) {
 				errorHeppens(e.getMessage());
 			}
 		}
-		return false;
-		
+		return "";
+
 	}
 
 	/**
-	 * Private method for supporting fill
-	 * Performs fill with out checks
+	 * Private method for supporting fill Performs fill with out checks
+	 * 
 	 * @param element
 	 * @param value
 	 */
 	private void fillPrivat(WebElement element, String value) {
-		//Clearing element
+		// Clearing element
 		try {
 			element.clear();
 		} catch (Exception e) {
 			// TODO: show than element is not cleareable
 		}
-		
-		
+
 		if (value.length() < 100) {
-			
+
 			element.sendKeys(value);
 		} else {
-			//Fast fill
-			
-			//Saving to clipboard
+			// Fast fill
+
+			// Saving to clipboard
 			StringSelection ss = new StringSelection(value);
-		    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
-			
-		    //Pasting value
+			Toolkit.getDefaultToolkit().getSystemClipboard()
+					.setContents(ss, null);
+
+			// Pasting value
 			element.sendKeys(Keys.CONTROL + "v");
 		}
 	}
@@ -438,8 +474,11 @@ public class PageObjectHelper {
 
 	/**
 	 * Selecting element in select by visible text
-	 * @param element - web element of select
-	 * @param visibleText - what text to select
+	 * 
+	 * @param element
+	 *            - web element of select
+	 * @param visibleText
+	 *            - what text to select
 	 */
 	protected void selectByVisibleText(WebElement element, String visibleText) {
 		new Select(element).selectByVisibleText(visibleText);
@@ -570,8 +609,9 @@ public class PageObjectHelper {
 	}
 
 	/**
-	 * If we can locate element on screen
-	 * Element should be present and displayed on screen
+	 * If we can locate element on screen Element should be present and
+	 * displayed on screen
+	 * 
 	 * @param by
 	 *            - what element
 	 * @return true - there is such element, false - no element
@@ -602,7 +642,7 @@ public class PageObjectHelper {
 		} catch (NoAlertPresentException e) {
 			print("No alert present");
 		}
-		
+
 	}
 
 	// ------------------------ Printing
