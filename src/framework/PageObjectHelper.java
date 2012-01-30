@@ -179,13 +179,15 @@ public class PageObjectHelper {
 	// ------------------------- Errors
 	/**
 	 * What actions to perform what get error
+	 * @return false - always
 	 */
-	protected void errorHeppens(String errorMessage) {
+	protected boolean errorHeppens(String errorMessage) {
 		customErrorHandler(errorMessage);
 
 		if (throwExeptions) {
 			Assert.fail();
 		}
+		return false;
 	}
 
 	/**
@@ -364,26 +366,29 @@ public class PageObjectHelper {
 		click(listOfElenentsToClick.get(index));
 	}
 
-
 	/**
 	 * Click on element in list that contains text
 	 * 
 	 * @param listOfElenents
 	 *            - list
-	 * @param textToClick - text on which we are clicking on
-	 * @return true if element found 
+	 * @param textToClick
+	 *            - text on which we are clicking on
+	 * @return true if element found
 	 */
-	protected boolean clickOnContains(List<WebElement> listOfElenents, String textToClick) {
+	protected boolean clickOnContains(List<WebElement> listOfElenents,
+			String textToClick) {
 		getListSizeOrWaitForIt(listOfElenents);
 
+		String textToClickLow = textToClick.toLowerCase();
+
 		for (WebElement webElement : listOfElenents) {
-			if (getText(webElement).contains(textToClick)) {
+			if (getText(webElement).toLowerCase().contains(textToClickLow)) {
 				click(webElement);
 				return true;
 			}
 		}
-		
-		return false;
+
+		return errorHeppens("clickOnContains - element not found");
 	}
 
 	/**
@@ -392,7 +397,7 @@ public class PageObjectHelper {
 	 */
 	private int getListSizeOrWaitForIt(List<WebElement> listOfElenents) {
 		int size = listOfElenents.size();
-		if (size <= 0) { 
+		if (size <= 0) {
 			for (int secondNow = 0; secondNow < waitTime; secondNow++) {
 				size = listOfElenents.size();
 				if (size > 0)
@@ -404,7 +409,7 @@ public class PageObjectHelper {
 		}
 		return size;
 	}
-	
+
 	// ------------------------- Forms
 	/**
 	 * Filling value to element If value > 100 chars than copy past value
@@ -590,9 +595,6 @@ public class PageObjectHelper {
 	// ------------------------- Getting element info
 	/**
 	 * Getting text of the element
-	 * 
-	 * @param by
-	 *            - what element
 	 * @return text of element
 	 */
 	protected String getText(WebElement element) {
@@ -605,9 +607,31 @@ public class PageObjectHelper {
 		} catch (NoSuchElementException e) {
 			errorHeppens(e.getMessage());
 		}
-		return text;
+		return text.trim();
 	}
 
+	/**
+	 * Getting int value from element text
+	 * @return int
+	 */
+	protected int getInt(WebElement element) {
+		String elementText = getText(element);
+		String alfabet = "0123456789";
+		String finalStr = "";
+		
+		int i = 0;
+		while (i <= elementText.length()) {
+			if (alfabet.indexOf(elementText.charAt(i)) > 0) {
+				finalStr += elementText.charAt(i);
+			} else {
+				break;
+			}
+			i++;
+		}
+		
+		return Integer.valueOf(finalStr);
+	}
+	
 	/**
 	 * If we can locate element on screen Element should be present and
 	 * displayed on screen
