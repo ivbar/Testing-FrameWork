@@ -367,30 +367,29 @@ public class PageObjectHelper {
 	}
 
 	/**
-	 * Click on element in list that contains text
+	 * Getting index of element in list that contains text
 	 * 
-	 * @param listOfElenents
-	 *            - list
+	 * @param listOfElenents - list
 	 * @param textToClick
 	 *            - text on which we are clicking on
-	 * @return true if element found
+	 * @return index
 	 */
-	protected boolean clickOnContains(List<WebElement> listOfElenents,
-			String textToClick) {
+	protected int getElementIndexContains(List<WebElement> listOfElenents,
+			String textToSerch) {
 		getListSizeOrWaitForIt(listOfElenents);
-
-		String textToClickLow = textToClick.toLowerCase();
-
+		
+		int i = 0;
+		String textToClickLow = textToSerch.toLowerCase();
 		for (WebElement webElement : listOfElenents) {
 			if (getText(webElement).toLowerCase().contains(textToClickLow)) {
-				click(webElement);
-				return true;
+				return i;
 			}
+			i++;
 		}
-
-		return errorHeppens("clickOnContains - element not found");
+		errorHeppens("getElementIndexContains - element not found");
+		return -1;
 	}
-
+	
 	/**
 	 * Waiting for list and getting its size
 	 * @param listOfElenents
