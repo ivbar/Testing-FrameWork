@@ -392,10 +392,11 @@ public class PageObjectHelper {
 	}
 
 	/**
+	 * Waiting for list and getting its size
 	 * @param listOfElenents
-	 * @return
-	 */
-	private int getListSizeOrWaitForIt(List<WebElement> listOfElenents) {
+	 * @return list size;
+	 */ 
+	protected int getListSizeOrWaitForIt(List<WebElement> listOfElenents) {
 		int size = listOfElenents.size();
 		if (size <= 0) {
 			for (int secondNow = 0; secondNow < waitTime; secondNow++) {
