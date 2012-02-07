@@ -26,7 +26,6 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
-import org.testng.Reporter;
 
 import com.opera.core.systems.OperaDriver;
 
@@ -220,44 +219,42 @@ public class PageObjectHelper {
 	 * What actions to perform what get error
 	 * @return false - always
 	 */
-	protected boolean errorHeppens(String errorMessage, Exception e) {
-		customErrorHandler(errorMessage);
-
+	protected boolean errorHeppens(String errorMessage) {
 		if (throwExeptions) {
-			Assert.fail(
-					errorMessage
-//					, e
-					);
+			Assert.fail(customErrorHandler(errorMessage));
 		}
 		return false;
-	}
-	
-	protected boolean errorHeppens(String errorMessage) {
-		return errorHeppens(errorMessage, null);
 	}
 
 	/**
 	 * Custom actions with error TODO: move it away from Framework
 	 * 
 	 * @param errorMessage
+	 * @return 
 	 */
-	protected void customErrorHandler(String errorMessage) {
+	protected String customErrorHandler(String errorMessage) {
+		String newErrorMessage = errorMessage;
+		
 		String prefix = now("yyyyMMddhhmmss");
 
 		// Screen shot
 		boolean isScreenTaken = tackeScreenShot(prefix);
 
+		newErrorMessage += NEW_LINE + "screenShot " + isScreenTaken
+				+ " " + prefix;
+		
 		// Printing to test NG report
-		Reporter.log(errorMessage + NEW_LINE + "screenShot " + isScreenTaken
-				+ " " + prefix);
+//		Reporter.log(errorMessage + );
 
 		// Printing to console
-		errorPrint(errorMessage + " " + prefix);
+		errorPrint(newErrorMessage);
 
 		// Create text file
 		// createAndWriteTextFile(errorMessage + NEW_LINE +
 		// driver.getCurrentUrl()
 		// + NEW_LINE + driver.getTitle() + NEW_LINE, prefix);
+		
+		return newErrorMessage;
 	}
 
 	/**
@@ -366,7 +363,7 @@ public class PageObjectHelper {
 			try {
 				element.click();
 			} catch (Exception e2) {
-				errorHeppens(e2.getMessage(), e2);
+				errorHeppens(e2.getMessage());
 			}
 		}
 	}
@@ -432,7 +429,7 @@ public class PageObjectHelper {
 			}
 			i++;
 		}
-		errorHeppens("getElementIndexContains - element not found");
+		errorHeppens("getElementIndexContains - element not found with text: " + textToSerch);
 		return -1;
 	}
 	
@@ -542,7 +539,7 @@ public class PageObjectHelper {
 			try {
 				new Select(element).selectByVisibleText(visibleText);
 			} catch (Exception e2) {
-				errorHeppens(e2.getMessage(), e2);
+				errorHeppens(e2.getMessage());
 			}
 		}
 	}
