@@ -47,7 +47,9 @@ public class StaticHelper {
 				return new FirefoxDriver();
 			}
 		} catch (NumberFormatException e) {
-			return new FirefoxDriver();
+			//No number in driver str
+			return null;
+//			return new FirefoxDriver();
 		}
 	}
 

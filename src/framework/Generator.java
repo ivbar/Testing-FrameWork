@@ -73,6 +73,16 @@ public class Generator {
 	}
 
 	/**
+	 * Generating number in rhe range
+	 * @param from
+	 * @param till
+	 * @return
+	 */
+	public static String number(int min, int max) {
+		return String.valueOf(min + (int)(Math.random() * ((max - min) + 1)));
+	}
+	
+	/**
 	 * Generating symbols on prepared alphabet
 	 * 
 	 * @param numOfCars
@@ -268,5 +278,6 @@ public class Generator {
 
 		return isValid;
 	}
+
 
 }
