@@ -77,9 +77,48 @@ public class PageObjectHelper {
 			errorHeppens(errorMessage + NEW_LINE
 					+ " Wrong assertEquals   actual: " + actual
 					+ " | expected: " + expected);
-		Assert.assertEquals(actual, expected);
 	}
 
+	/**
+	 * Compare equals for strings that contains numbers
+	 * Solve the problem with different number formats
+	 * 
+	 * @param actual
+	 *            Object - what to compare
+	 * @param expected
+	 *            Object - what we expect
+	 * @param errorMessage
+	 *            - message to add to log
+	 */
+	protected void assertEqualNumbers(String actual, String expected,
+			String errorMessage) {
+		// Our own assert
+		if (!actual.trim().replace(',', '.').equals(expected.trim().replace(',', '.')))
+			errorHeppens(errorMessage + NEW_LINE
+					+ " Wrong assertEqualNumbers   actual: " + actual
+					+ " | expected: " + expected);
+	}
+
+	
+	/**
+	 * Compare Contains if not Contains - test fail
+	 * 
+	 * @param real
+	 *            - real string that should contain
+	 * @param what
+	 *            - what should be in real string
+	 * @param errorMessage
+	 *            - message to add to log
+	 */
+	protected void assertContains(String real, String what,
+			String errorMessage) {
+		// Our own assert
+		if (!real.trim().toLowerCase().contains(what.trim().toLowerCase()))
+			errorHeppens(errorMessage + NEW_LINE
+					+ " Wrong assertContains   this string: " + real
+					+ " | doesn't contains: " + what);
+	}
+	
 	/**
 	 * Compare equals if not equals - test fail
 	 * 
@@ -88,7 +127,7 @@ public class PageObjectHelper {
 	 * @param expected
 	 *            Object - what we expect
 	 */
-	protected void assertEquals(Object actual, Object expected) {
+	protected void assertEquals(String actual, String expected) {
 		assertEquals(actual, expected, "");
 	}
 
@@ -181,13 +220,20 @@ public class PageObjectHelper {
 	 * What actions to perform what get error
 	 * @return false - always
 	 */
-	protected boolean errorHeppens(String errorMessage) {
+	protected boolean errorHeppens(String errorMessage, Exception e) {
 		customErrorHandler(errorMessage);
 
 		if (throwExeptions) {
-			Assert.fail();
+			Assert.fail(
+					errorMessage
+//					, e
+					);
 		}
 		return false;
+	}
+	
+	protected boolean errorHeppens(String errorMessage) {
+		return errorHeppens(errorMessage, null);
 	}
 
 	/**
@@ -320,7 +366,7 @@ public class PageObjectHelper {
 			try {
 				element.click();
 			} catch (Exception e2) {
-				errorHeppens(e.getMessage());
+				errorHeppens(e2.getMessage(), e2);
 			}
 		}
 	}
@@ -447,12 +493,12 @@ public class PageObjectHelper {
 		// Clearing element
 		try {
 			element.clear();
+			element.click();
 		} catch (Exception e) {
-			// TODO: show than element is not cleareable
+			// TODO: show than element can't be cleared
 		}
 
 		if (value.length() < 100) {
-
 			element.sendKeys(value);
 		} else {
 			// Fast fill
@@ -464,6 +510,9 @@ public class PageObjectHelper {
 
 			// Pasting value
 			element.sendKeys(Keys.CONTROL + "v");
+			
+			//TODO: fix - browser doesn't take up CONTROL    
+			element.sendKeys("asd");
 		}
 	}
 
@@ -486,7 +535,16 @@ public class PageObjectHelper {
 	 *            - what text to select
 	 */
 	protected void selectByVisibleText(WebElement element, String visibleText) {
-		new Select(element).selectByVisibleText(visibleText);
+		try {
+			new Select(element).selectByVisibleText(visibleText);
+		} catch (NoSuchElementException e) {
+			waitForElement(element);
+			try {
+				new Select(element).selectByVisibleText(visibleText);
+			} catch (Exception e2) {
+				errorHeppens(e2.getMessage(), e2);
+			}
+		}
 	}
 
 	// -------------------------- Waiting
@@ -664,7 +722,7 @@ public class PageObjectHelper {
 			Alert alert = driver.switchTo().alert();
 			alert.accept();
 		} catch (NoAlertPresentException e) {
-			print("No alert present");
+			println("No alert present");
 		}
 
 	}
