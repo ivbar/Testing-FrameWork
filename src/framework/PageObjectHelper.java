@@ -358,7 +358,7 @@ public class PageObjectHelper {
 	protected void click(WebElement element) {
 		try {
 			element.click();
-		} catch (NoSuchElementException e) {
+		} catch (Exception e) {
 			waitForElement(element);
 			try {
 				element.click();
@@ -698,7 +698,7 @@ public class PageObjectHelper {
 	protected boolean isElementPresent(WebElement element) {
 		try {
 			if (element != null && element.isDisplayed()) {
-				printlog("yes element");
+//				printlog("yes element");
 				return true;
 			} else {
 				printlog("no element");
@@ -706,6 +706,9 @@ public class PageObjectHelper {
 			}
 		} catch (NoSuchElementException e) {
 			printlog("no element");
+			return false;
+		} catch (Exception e) {
+			errorHeppens(e.getMessage());
 			return false;
 		}
 	}
